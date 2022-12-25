@@ -13,6 +13,9 @@ connectDB();
 // Init Middleware
 app.use(express.json({ extended: false }));
 
+app.use(bodyParser.urlencoded({extended: true}));
+// app.use(bodyParser.json());
+
 app.get('/', (req, res) => res.send('API Running'));
 
 //Define Routes
