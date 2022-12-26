@@ -1,3 +1,4 @@
+require ('dotenv').config();
 const express = require("express");
 const connectDB = require ('./config/db');
 
@@ -14,6 +15,7 @@ connectDB();
 app.use(express.json({ extended: false }));
 
 app.use(bodyParser.urlencoded({extended: true}));
+
 // app.use(bodyParser.json());
 
 app.get('/', (req, res) => res.send('API Running'));
@@ -30,5 +32,5 @@ if (port == null || port == "") {
 }
 
 app.listen(port, function () {
-  console.log("Server has started successfully");
+  console.log("Server has started successfully at port 5000");
 });
