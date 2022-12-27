@@ -102,13 +102,13 @@ async (req, res) => {
     // if (instagram) profileFields.social.instagram = instagram;
 
     try{
-        let profile = await profile.findOne({ user: req.user.id });
+        let profile = await Profile.findOne({ user: req.user.id });
         if (profile){
             //Update
-            profile = await Profile.findByIdAndUpdate(
+            profile = await Profile.findOneAndUpdate(
                 { user: req.user.id }, 
                 { $set: profileFields },
-                { new: true }
+                { new: true, upsert: true, setDefaultsOnInsert: true }
                 );
 
                 return res.json(profile);
