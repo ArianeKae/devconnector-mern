@@ -1,9 +1,9 @@
 const express = require('express');
 var router = express.Router();
-const auth = require('../../../middleware/auth');
+const auth = require('../../middleware/auth');
 const { body, validationResult } = require('express-validator');
 
-const Profile = require('../../../models/Profile');
+const Profile = require('../../models/Profile');
 // const User = require('../../../models/User');
 
 
@@ -72,6 +72,7 @@ async (req, res) => {
         'location',
         'bio',
         'status',
+        'skills',
         'githubusername'
     ],
     socialFields = [
@@ -82,8 +83,8 @@ async (req, res) => {
         'instagram'
     ]
 
-    // if(skills) {
-    //     profileFields.skills = skills.split(',').map(skill => skill.trim());
+    // if(standardFields.skills) {
+    //     standardFields.skills = skills.split(',').map(skill => skill.trim());
     // }
 
     standardFields.forEach(field => {

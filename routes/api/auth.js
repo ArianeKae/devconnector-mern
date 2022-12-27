@@ -1,23 +1,37 @@
 const express = require('express');
 var router = express.Router();
-const gravatar = require('gravatar');
 const bcrypt = require('bcryptjs');
+const auth = require('../../middleware/auth');
+const gravatar = require('gravatar');
+
 const jwt = require('jsonwebtoken');
 const config = require('config');
 const { body, validationResult } = require('express-validator');
 
-const User = require('./../../../models/User');
+const User = require('../../models/User');
 
-// @route       POST api/users
-// @desc        Register user
+// @route       GET api/auth
+// @desc        Test route
 // @access      Public
-router.post('/', [
-    body('name', 'Name is required').not().isEmpty(),
+router.get('/', auth, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).select('-password');
+        res.json(user);
+    } catch(err){
+        console.error(err.message);
+        res.status(500).send('Server error');
+    }
+});
+
+// @route       POST api/auth
+// @desc        Authenticate user & get token
+// @access      Public
+router.post('/', 
+[
     body('email', 'Please include a valid email').isEmail(),
     body(
         'password', 
-        'Please enter a password with 6 or more characters'
-        ).isLength({ min: 6 })
+        'Please is required').exists()
 ], 
 async (req, res) => {
     const errors = validationResult(req);
@@ -25,14 +39,18 @@ async (req, res) => {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, email, password } = req.body;
+    const { email, password } = req.body;
 
     try{
     // See if user exists
         let user = await User.findOne({ email });
 
-        if(user){
-            return res.status(400).json({ errors: [{msg: 'User already exists'}]});
+        if(!user){
+            return res.status(400)
+            .json({ 
+                errors: [{
+                    msg: 'Invalid Credentials'}] 
+                });
         }
 
     // Get users gravator
@@ -42,20 +60,18 @@ async (req, res) => {
             d: 'mm'
         })
 
-        user = new User({
-            name,
-            email,
-            avatar,
-            password
-        });
+    // Match email and password
+        const isMatch = await bcrypt.compare(password, user.password);
 
-    // Encrypt password
-        const salt = await bcrypt.genSalt(10);
+        if(!isMatch){
+            return res.status(400)
+            .json({ 
+                errors: [{
+                    msg: 'Invalid Credentials'}] 
+                });
+        }
 
-        user.password = await bcrypt.hash(password, salt);
-
-        await user.save();
-
+       
      // Return jsonwebtoken
       const payload = {
         user: {
