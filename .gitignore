@@ -129,7 +129,5 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-config/production.json
-config/default.json
-client/build
-client/.eslintcache
+# Config
+config
